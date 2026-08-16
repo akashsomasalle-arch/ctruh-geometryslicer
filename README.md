@@ -4,7 +4,7 @@ Desktop web editor for cutting 3D meshes in real time. Draw a mouse gesture acro
 
 **Demo:** [https://ctruh-geometryslicer.netlify.app/](https://ctruh-geometryslicer.netlify.app/)
 
-**Framework:** Three.js (r183) + TypeScript + Vite. Default renderer is WebGL 2 via `WebGLRenderer`; Project settings can switch to `WebGPURenderer` when the browser supports it.
+**Framework:** Three.js (r183) + TypeScript + Vite. Renderer is WebGL 2 via `WebGLRenderer`.
 
 **Shading:** PBR by default (`MeshStandardMaterial` + `RoomEnvironment` / HDR IBL, ambient / hemisphere / directional lights, ACES tone mapping). The properties panel can convert a selected mesh to Phong, Lambert, Physical, and other Three.js materials. Viewport shading can also preview normals or wireframe without changing the stored material.
 
@@ -27,8 +27,9 @@ npm run build
 2. **Navigate** — orbit / pan / zoom. Click a piece to select it, then use the gizmo (`W` translate, `R` rotate, `S` scale).
 3. **Cut** — drag across the model. A 2D stroke and a translucent 3D plane preview the cut. Release to slice.
 4. Switch or add shapes from the catalog (primitives, text, sprite, T-Shirt). Import `.glb` / `.gltf` / `.obj` / `.fbx` / `.usdz`. Cutting uses the same pipeline for every mesh.
-5. File menu: save / open a project JSON, export GLB / GLTF / OBJ / USDZ.
-6. Shortcuts: `C` cut, `N` navigate, `Esc` cancel, `Del` delete, `Ctrl+Z` undo, `Ctrl+Shift+Z` redo.
+5. **Outliner** — viewport click selects the whole import. In the Scene list, each mesh shows as `name` plus a green geometry dot and a pink material name (`mesh_2 ● Metal 01`). Click the mesh, the green dot, or the material to edit that object / geometry / material. Drag the bar under the list to resize it.
+6. File menu: save / open a project JSON, export GLB / GLTF / OBJ / USDZ.
+7. Shortcuts: `C` cut, `N` navigate, `Esc` cancel, `Del` delete, `Ctrl+Z` undo, `Ctrl+Shift+Z` redo.
 
 ## Third-party libraries
 
@@ -116,8 +117,7 @@ Each split triangle contributes a segment on the plane. Segments are snapped, st
 - **Skinned / morph meshes**: bind-pose / base geometry is sliced; bone/morph deformation is not baked.
 - **Multi-material source meshes**: only the first material is kept on the surface group. Cut pieces always get `[surface, cap]`.
 - **Coplanar triangles** are assigned to the positive side rather than becoming cap geometry.
-- **Property-panel edits** (material type, colors, fog, renderer) are not on the undo stack — only cuts, gizmo transforms, add / clone / delete, and mode switches are.
-- **WebGPU** is optional and falls back to WebGL if `WebGPURenderer` cannot init.
+- **Property-panel edits** (material type, colors, fog) are not on the undo stack — only cuts, gizmo transforms, add / clone / delete, and mode switches are.
 - Pieces are separated by a small gap along the plane normal so the cut is visible.
 - No multi-stroke boolean, no Web Workers.
 

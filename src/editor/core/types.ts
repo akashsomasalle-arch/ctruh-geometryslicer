@@ -6,7 +6,7 @@ export type HelperKey = "gridHelper" | "cameraHelpers" | "lightHelpers" | "skele
 export type ResourceKind = "geometries" | "materials" | "textures";
 export type ShadingMode = "solid" | "normals" | "wireframe";
 export type CameraKind = "perspective" | "orthographic";
-export type RendererKind = "WebGLRenderer" | "WebGPURenderer";
+export type RendererKind = "WebGLRenderer";
 
 export interface HistoryCommand {
   label?: string;
@@ -80,10 +80,20 @@ export interface CutRecord {
   parents: Map<THREE.Object3D, THREE.Object3D | null>;
 }
 
+export type OutlinerKind = "camera" | "scene" | "object" | "geometry" | "material";
+export type PropertyTab = "object" | "geometry" | "material";
+
+export interface SelectOptions {
+  exact?: boolean;
+  prop?: PropertyTab;
+  slot?: number;
+}
+
 export interface OutlinerEntry {
   object: THREE.Object3D;
   depth: number;
-  kind: string;
+  kind: OutlinerKind;
+  slot?: number;
 }
 
 export interface OutlinerMeta {

@@ -607,14 +607,28 @@ body[data-mode="cut"] #viewport {
 .scene-outliner {
   border-top: 0;
   padding-top: 20px;
+  padding-bottom: 8px;
 }
 
 #outliner {
-  min-height: 140px;
-  max-height: 220px;
+  height: 220px;
+  min-height: 120px;
   overflow: auto;
   background: #222;
   outline: none;
+}
+
+#outliner-resizer {
+  height: 6px;
+  margin-top: 2px;
+  cursor: ns-resize;
+  background: linear-gradient(to bottom, transparent, #2a2a2a 40%, #444 50%, #2a2a2a 60%, transparent);
+  flex-shrink: 0;
+}
+
+#outliner-resizer:hover,
+#outliner-resizer:active {
+  background: linear-gradient(to bottom, transparent, #3a3a3a 40%, #777 50%, #3a3a3a 60%, transparent);
 }
 
 #outliner .option {
@@ -692,6 +706,16 @@ body[data-mode="cut"] #viewport {
 
 #outliner .Material {
   color: #eeaaee;
+}
+
+#outliner .option .outliner-geo,
+#outliner .option .outliner-mat {
+  cursor: pointer;
+}
+
+#outliner .option .outliner-geo.active,
+#outliner .option .outliner-mat.active {
+  color: #ddd;
 }
 
 #outliner .empty {

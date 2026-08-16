@@ -28,7 +28,7 @@ The slicer is a small pipeline inside a larger editor. Data for a cut still flow
           │             │  split, caps, geometries
           └─────────────┘
 
-SceneManager  = viewport (lights, grid, PBR, orbit, helpers, shading, optional WebGPU)
+SceneManager  = viewport (lights, grid, PBR, orbit, helpers, shading, WebGL)
 ModelManager  = catalog / upload / dispose / keep groups
 App           = glue: load, history commands, save/open/export, property edits
 ```
@@ -37,7 +37,7 @@ App           = glue: load, history commands, save/open/export, property edits
 
 - `UI` is DOM only. Buttons and menus fire callbacks (`onModeChange`, `onUndo`, `onObjectEdit`, …). It never reads vertex buffers.
 - `EditorState` keeps Navigate/Cut orthogonal to the transient pointer phase (`idle` / `cutting` / `dragging`). Orbit and the transform gizmo follow the mode; a cut gesture can disable orbit without losing the HUD mode.
-- `InteractionManager` owns picking and `TransformControls`. In Cut mode it forwards the stroke to `CutManager`. In Navigate mode it selects a piece and attaches the gizmo. Transforms are reported to `App`, which records them in `History`.
+- `InteractionManager` owns picking and `TransformControls`. Viewport picks walk up to the imported root so a GLTF stays one selectable model. Outliner clicks stay on the exact mesh, geometry, or material so nested GLTF materials can be edited. In Cut mode it forwards the stroke to `CutManager`. In Navigate mode it selects a piece and attaches the gizmo. Transforms are reported to `App`, which records them in `History`.
 - `CutManager` owns *when* to cut and *what* to replace in the graph: derive the world plane, preview line + plane, call `MeshCutter`, spawn two pieces, register them, then emit a `CutRecord` (`before` / `after` / `parents`) so `App` can undo.
 - `MeshCutter.cut(mesh, plane)` has no knowledge of hoodie vs cube. If it renders as a `THREE.Mesh` with a position attribute, it can be cut.
 - `History` is a linear undo/redo stack. Cuts restore the previous mesh graph; gizmo moves restore position / rotation / scale; add / clone / delete restore object membership.
@@ -59,7 +59,6 @@ App           = glue: load, history commands, save/open/export, property edits
 | Small gap after cut | Makes the demo readable without extra UI | Optional explode slider |
 | Main-thread slice | Keeps the architecture obvious | Move `MeshCutter` to a Worker; stream pieces back |
 | Property edits not undoable | Gizmo / cut / graph ops were the high-value history cases | Snapshot material and scene settings as commands |
-| WebGPU as a toggle, not the default | WebGL 2 is the reliable path; GPU renderer init can fail | Make WebGPU first-class once Three.js editor parity is stable |
 
 Built after the original slicer (not left as future work): TypeScript throughout, undo/redo for cuts and transforms, TransformControls instead of free drag, editor shell (outliner, properties, resources), save / open / export / publish.
 

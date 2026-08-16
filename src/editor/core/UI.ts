@@ -7,7 +7,9 @@ import type {
   ObjectEdit,
   OutlinerEntry,
   OutlinerMeta,
+  PropertyTab,
   ResourceKind,
+  SelectOptions,
   ShadingMode,
   SidebarSettings,
   ViewportStats,
@@ -153,7 +155,6 @@ export class UI {
   viewportShading: HTMLSelectElement | null;
   viewHelper: HTMLElement | null;
   projectCamera: HTMLSelectElement | null;
-  projectRenderer: HTMLSelectElement | null;
   projectAntialias: HTMLInputElement | null;
   projectShadows: HTMLInputElement | null;
   projectShadowType: HTMLSelectElement | null;
@@ -189,7 +190,7 @@ export class UI {
   _onFrame: (() => void) | null;
   _onToggleGrid: ((visible: boolean) => void) | null;
   _onToggleHelpers: ((key: HelperKey, visible: boolean) => void) | null;
-  _onSelectPart: ((mesh: THREE.Object3D | null) => void) | null;
+  _onSelectPart: ((mesh: THREE.Object3D | null, options?: SelectOptions) => void) | null;
   _onNewEmpty: (() => void) | null;
   _onSave: (() => void) | null;
   _onExport: ((format: string) => void) | null;
@@ -221,6 +222,7 @@ export class UI {
   _resources: ResourceBag;
   _outlinerEntries: OutlinerEntry[];
   _outlinerMeta: OutlinerMeta;
+  _outlinerFocus: PropertyTab;
   _sceneOpen: boolean;
 
   constructor(editorState: EditorState) {
@@ -309,7 +311,6 @@ export class UI {
     this.viewportShading = $("#viewport-shading");
     this.viewHelper = $("#view-helper");
     this.projectCamera = $("#project-camera");
-    this.projectRenderer = $("#project-renderer");
     this.projectAntialias = $("#project-antialias");
     this.projectShadows = $("#project-shadows");
     this.projectShadowType = $("#project-shadow-type");
@@ -379,6 +380,7 @@ export class UI {
     this._resources = { geometries: [], materials: [], textures: [] };
     this._outlinerEntries = [];
     this._outlinerMeta = {};
+    this._outlinerFocus = "object";
     this._sceneOpen = true;
 
     this._populateModels();
@@ -424,7 +426,7 @@ export class UI {
     this._onToggleHelpers = fn;
   }
 
-  onSelectPart(fn: (mesh: THREE.Object3D | null) => void): void {
+  onSelectPart(fn: (mesh: THREE.Object3D | null, options?: SelectOptions) => void): void {
     this._onSelectPart = fn;
   }
 
@@ -629,7 +631,7 @@ export class UI {
     const walk = (object: THREE.Object3D, depth: number): void => {
       entries.push({ object, depth, kind: "object" });
       const obj = object as SceneObj;
-      if (obj.isMesh || obj.isLight || obj.isCamera || obj.isSprite) return;
+      if (obj.isLight || obj.isCamera || obj.isSprite) return;
       for (const child of object.children) {
         if (child.userData?.ignorePick || child.userData?.isHelper) continue;
         walk(child, depth + 1);
@@ -648,15 +650,16 @@ export class UI {
 
     this.outliner.innerHTML = entries
       .map((entry, i) => {
-        const type = this._outlinerType(entry.object, entry.kind);
-        const name = this._escape(entry.object.name || type);
-        const extras = this._outlinerExtras(entry.object);
+        const type = this._outlinerType(entry);
+        const name = this._escape(this._outlinerName(entry));
+        const extras = this._outlinerExtras(entry, selected);
         const opener = this._outlinerOpener(entry);
-        const active = entry.object === selected ? " active" : "";
+        const active = this._isOutlinerActive(entry, selected) ? " active" : "";
         return `<div class="option${active}" data-index="${i}" style="padding-left:${entry.depth * 18}px">${opener}<span class="type ${type}"></span> ${name}${extras}</div>`;
       })
       .join("");
     this.refreshProperties(selected);
+    this._applyPropertyTab();
     this.setViewportCameras(meta.cameras || (meta.camera ? [meta.camera] : []), meta.viewportCamera);
   }
 
@@ -669,7 +672,10 @@ export class UI {
     if (selected) this.viewportCamera.value = selected.uuid;
   }
 
-  setSelection(mesh: THREE.Object3D | null): void {
+  setSelection(mesh: THREE.Object3D | null, options?: SelectOptions): void {
+    if (options?.slot != null) this._materialSlot = options.slot;
+    else if (options?.prop !== "material") this._materialSlot = 0;
+    this._outlinerFocus = options?.prop ?? "object";
     this.setOutliner(this._parts, mesh);
     this.setResources(this._resources, mesh);
   }
@@ -791,7 +797,6 @@ export class UI {
     this._set("#scene-fog-density", settings.fogDensity);
     this._refreshSceneFields();
     if (this.projectCamera) this.projectCamera.value = settings.cameraType || "perspective";
-    if (this.projectRenderer) this.projectRenderer.value = settings.rendererType || "WebGLRenderer";
     if (this.projectAntialias) this.projectAntialias.checked = settings.antialias !== false;
     if (this.projectShadows) this.projectShadows.checked = Boolean(settings.shadows);
     if (this.projectShadowType) {
@@ -875,8 +880,25 @@ export class UI {
       if (!option) return;
       const entry = this._outlinerEntries[Number(option.dataset.index)];
       if (!entry) return;
-      if (entry.kind === "scene") this._onSelectPart?.(null);
-      else this._onSelectPart?.(entry.object);
+      const matSlot = target.closest("[data-mat-slot]") as HTMLElement | null;
+      if (matSlot && option.contains(matSlot)) {
+        this._onSelectPart?.(entry.object, {
+          exact: true,
+          prop: "material",
+          slot: Number(matSlot.dataset.matSlot) || 0,
+        });
+        return;
+      }
+      if (target.closest("[data-geo]") && option.contains(target.closest("[data-geo]"))) {
+        this._onSelectPart?.(entry.object, { exact: true, prop: "geometry" });
+        return;
+      }
+      if (entry.kind === "scene") {
+        this._outlinerFocus = "object";
+        this._onSelectPart?.(null);
+        return;
+      }
+      this._onSelectPart?.(entry.object, { exact: true, prop: "object" });
     });
     this.outliner?.addEventListener("dblclick", (event) => {
       const target = event.target as HTMLElement;
@@ -963,7 +985,6 @@ export class UI {
     this.sceneFogDensity?.addEventListener("change", () => this._emitSceneEdit());
 
     this.projectCamera?.addEventListener("change", () => this._emitProjectEdit());
-    this.projectRenderer?.addEventListener("change", () => this._emitProjectEdit());
     this.projectAntialias?.addEventListener("change", () => this._emitProjectEdit());
     this.projectShadows?.addEventListener("change", () => this._emitProjectEdit());
     this.projectShadowType?.addEventListener("change", () => this._emitProjectEdit());
@@ -1012,6 +1033,7 @@ export class UI {
     });
 
     this._bindResizer();
+    this._bindOutlinerResizer();
     this._bindDrop();
   }
 
@@ -1093,6 +1115,38 @@ export class UI {
     this.properties?.querySelectorAll(".prop-panel").forEach((panel) => {
       const el = panel as HTMLElement;
       el.hidden = el.dataset.prop !== id;
+    });
+    if (id === "object" || id === "geometry" || id === "material") {
+      this._outlinerFocus = id;
+      this._syncOutlinerActive();
+    }
+  }
+
+  _applyPropertyTab(): void {
+    const obj = this._selected as SceneObj | null;
+    let tab = this._outlinerFocus;
+    if (tab === "geometry" && !obj?.geometry) tab = "object";
+    if (tab === "material" && !this._objectMaterials(this._selected).length) tab = "object";
+    this._outlinerFocus = tab;
+    this._selectPropTab(tab);
+  }
+
+  _syncOutlinerActive(): void {
+    this.outliner?.querySelectorAll(".option[data-index]").forEach((node) => {
+      const option = node as HTMLElement;
+      const entry = this._outlinerEntries[Number(option.dataset.index)];
+      const selectedHere = Boolean(entry && this._isOutlinerActive(entry, this._selected));
+      option.classList.toggle("active", selectedHere);
+      option.querySelectorAll("[data-geo]").forEach((geo) => {
+        geo.classList.toggle("active", selectedHere && this._outlinerFocus === "geometry");
+      });
+      option.querySelectorAll("[data-mat-slot]").forEach((mat) => {
+        const slot = Number((mat as HTMLElement).dataset.matSlot) || 0;
+        mat.classList.toggle(
+          "active",
+          selectedHere && this._outlinerFocus === "material" && slot === this._materialSlot
+        );
+      });
     });
   }
 
@@ -1219,6 +1273,7 @@ export class UI {
 
   _refreshMaterial(object: THREE.Object3D | null): void {
     const materials = this._objectMaterials(object);
+    if (this._materialSlot >= materials.length) this._materialSlot = 0;
     const material = materials[this._materialSlot] ?? materials[0];
     if (!material) {
       this.matTexSettings && (this.matTexSettings.hidden = true);
@@ -1304,7 +1359,9 @@ export class UI {
       this._materialSlot = Number(input.value) || 0;
       this._textureSettingsProperty = null;
       if (this.matTexSettings) this.matTexSettings.hidden = true;
+      this._outlinerFocus = "material";
       this._refreshMaterial(this._selected);
+      this._syncOutlinerActive();
       return true;
     }
     if (target === this.propMatType) {
@@ -1468,15 +1525,60 @@ export class UI {
     this._onObjectEdit?.(this._selected, { kind: "material", slot: this._materialSlot, ...change });
   }
 
-  _outlinerType(object: THREE.Object3D, kind: string): string {
-    const obj = object as SceneObj | undefined;
+  _outlinerType(entry: OutlinerEntry | THREE.Object3D, kind?: string): string {
+    if (entry && typeof entry === "object" && "kind" in entry) {
+      kind = entry.kind;
+      entry = entry.object;
+    }
+    const obj = entry as SceneObj | undefined;
     if (kind === "scene" || obj?.isScene) return "Scene";
     if (obj?.isCamera) return "Camera";
     if (obj?.isLight) return "Light";
     if (obj?.isMesh) return "Mesh";
     if (obj?.isLine) return "Line";
     if (obj?.isPoints) return "Points";
+    if (obj?.isSprite) return "Sprite";
+    if (obj?.isGroup) return "Group";
     return "Object3D";
+  }
+
+  _outlinerName(entry: OutlinerEntry): string {
+    return entry.object.name || this._outlinerType(entry);
+  }
+
+  _outlinerExtras(entry: OutlinerEntry, selected: THREE.Object3D | null): string {
+    if (entry.kind !== "object") return "";
+    const geometry = (entry.object as THREE.Mesh).geometry;
+    const materials = this._objectMaterials(entry.object);
+    if (!geometry && !materials.length) return "";
+
+    const parts: string[] = [];
+    if (geometry) {
+      const geoName = this._escape(geometry.name || "");
+      const active =
+        entry.object === selected && this._outlinerFocus === "geometry" ? " active" : "";
+      parts.push(
+        `<span class="outliner-geo${active}" data-geo="1" title="${this._escape(geometry.name || geometry.type || "Geometry")}"><span class="type Geometry"></span>${geoName ? ` ${geoName}` : ""}</span>`
+      );
+    }
+    for (let slot = 0; slot < materials.length; slot++) {
+      const material = materials[slot];
+      const matName = this._escape(material.name || material.type || "Material");
+      const active =
+        entry.object === selected &&
+        this._outlinerFocus === "material" &&
+        slot === this._materialSlot
+          ? " active"
+          : "";
+      parts.push(
+        `<span class="outliner-mat${active}" data-mat-slot="${slot}" title="${matName}"><span class="type Material"></span> ${matName}</span>`
+      );
+    }
+    return ` ${parts.join(" ")}`;
+  }
+
+  _isOutlinerActive(entry: OutlinerEntry, selected: THREE.Object3D | null): boolean {
+    return entry.object === selected;
   }
 
   _outlinerOpener(entry: OutlinerEntry): string {
@@ -1484,20 +1586,9 @@ export class UI {
     return `<span class="opener ${this._sceneOpen ? "open" : "closed"}"></span>`;
   }
 
-  _outlinerExtras(object: THREE.Object3D): string {
-    const mesh = object as THREE.Mesh;
-    if (!mesh?.isMesh) return "";
-    const geometry = mesh.geometry;
-    const material = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
-    const geoName = this._escape(geometry?.name || "");
-    const matName = this._escape(material?.name || "");
-    return ` <span class="type Geometry"></span> ${geoName} <span class="type Material"></span> ${matName}`;
-  }
-
   _emitProjectEdit(): void {
     this._onProjectEdit?.({
       cameraType: this.projectCamera?.value as SidebarSettings["cameraType"],
-      rendererType: this.projectRenderer?.value as SidebarSettings["rendererType"],
       antialias: this.projectAntialias?.checked,
       shadows: this.projectShadows?.checked,
       shadowType: Number(this.projectShadowType?.value),
@@ -1651,6 +1742,32 @@ export class UI {
 
     resizer.addEventListener("pointerdown", (event) => {
       if (event.isPrimary === false) return;
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", onUp);
+    });
+  }
+
+  _bindOutlinerResizer(): void {
+    const handle = this.editor?.querySelector("#outliner-resizer") as HTMLElement | null;
+    const outliner = this.outliner;
+    if (!handle || !outliner) return;
+
+    const onMove = (event: PointerEvent): void => {
+      if (event.isPrimary === false) return;
+      const top = outliner.getBoundingClientRect().top;
+      const height = Math.max(120, Math.min(window.innerHeight * 0.7, event.clientY - top));
+      outliner.style.height = `${height}px`;
+    };
+
+    const onUp = (event: PointerEvent): void => {
+      if (event.isPrimary === false) return;
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+    };
+
+    handle.addEventListener("pointerdown", (event) => {
+      if (event.isPrimary === false) return;
+      event.preventDefault();
       document.addEventListener("pointermove", onMove);
       document.addEventListener("pointerup", onUp);
     });

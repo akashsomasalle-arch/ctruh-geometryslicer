@@ -5,6 +5,7 @@ import type { EditorState } from "./EditorState";
 import type { SceneManager } from "./SceneManager";
 import type { CutManager } from "./CutManager";
 import type { UI } from "./UI";
+import type { SelectOptions } from "./types";
 
 interface GizmoStart {
   position: THREE.Vector3;
@@ -304,19 +305,25 @@ export class InteractionManager {
     this.sceneManager.requestRender();
   }
 
-  private _select(mesh: THREE.Object3D): void {
-    this.selected = this.cutManager.getSelectable(mesh) || mesh;
-    this.ui.setSelection(this.selected);
-    this.ui.setHint("Use the gizmo to move · W translate · R rotate · S scale");
+  private _select(mesh: THREE.Object3D, options?: SelectOptions): void {
+    this.selected = options?.exact ? mesh : this.cutManager.getSelectable(mesh) || mesh;
+    this.ui.setSelection(this.selected, options);
+    this.ui.setHint(
+      options?.prop === "material"
+        ? "Material selected — edit it in the Material tab"
+        : options?.prop === "geometry"
+          ? "Geometry selected — inspect it in the Geometry tab"
+          : "Use the gizmo to move · W translate · R rotate · S scale"
+    );
     this.updateHelpers();
   }
 
-  selectMesh(mesh: THREE.Object3D | null): void {
+  selectMesh(mesh: THREE.Object3D | null, options?: SelectOptions): void {
     if (!mesh) {
       this._clearSelection();
       return;
     }
-    this._select(mesh);
+    this._select(mesh, options);
   }
 
   private _clearSelection(): void {

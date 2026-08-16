@@ -520,10 +520,8 @@ export class SceneManager {
   }
 
   async recreateRenderer({
-    type = this.rendererType,
     antialias = this.antialias,
-  }: { type?: RendererKind; antialias?: boolean } = {}): Promise<void> {
-    const nextType: RendererKind = type === "WebGPURenderer" ? "WebGPURenderer" : "WebGLRenderer";
+  }: { antialias?: boolean } = {}): Promise<void> {
     const nextAntialias = Boolean(antialias);
     const snapshot = {
       shadows: this.renderer.shadowMap.enabled,
@@ -532,23 +530,15 @@ export class SceneManager {
       exposure: this.renderer.toneMappingExposure,
     };
 
-    let next: THREE.WebGLRenderer;
-    if (nextType === "WebGPURenderer") {
-      const { WebGPURenderer } = await import("three/webgpu");
-      const gpu = new WebGPURenderer({ canvas: this.canvas, antialias: nextAntialias });
-      await gpu.init();
-      next = gpu as unknown as THREE.WebGLRenderer;
-    } else {
-      next = new THREE.WebGLRenderer({
-        canvas: this.canvas,
-        antialias: nextAntialias,
-        alpha: false,
-      });
-    }
+    const next = new THREE.WebGLRenderer({
+      canvas: this.canvas,
+      antialias: nextAntialias,
+      alpha: false,
+    });
 
     this.renderer.dispose();
     this.renderer = next;
-    this.rendererType = nextType;
+    this.rendererType = "WebGLRenderer";
     this.antialias = nextAntialias;
     this.renderer.setSize(this.sizes.width, this.sizes.height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));

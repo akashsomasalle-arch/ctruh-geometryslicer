@@ -178,7 +178,7 @@ export class App {
     this.ui.onFrame(() => this.sceneManager!.fitCameraTo(this.sceneManager!.piecesRoot));
     this.ui.onToggleGrid((visible: boolean) => this.sceneManager!.setGridVisible(visible));
     this.ui.onToggleHelpers((key: HelperKey, visible: boolean) => this.sceneManager!.setHelperState(key, visible));
-    this.ui.onSelectPart((mesh: THREE.Object3D | null) => this.interaction!.selectMesh(mesh));
+    this.ui.onSelectPart((mesh, options) => this.interaction!.selectMesh(mesh, options));
     this.ui.onNewEmpty(() => this._newEmpty());
     this.ui.onSave(() => this._saveProject());
     this.ui.onOpen(() => this._openProject());
@@ -555,23 +555,8 @@ export class App {
       this._refreshOutliner();
     }
 
-    if (
-      settings.rendererType !== this.sceneManager!.rendererType ||
-      settings.antialias !== this.sceneManager!.antialias
-    ) {
-      try {
-        await this.sceneManager!.recreateRenderer({
-          type: settings.rendererType,
-          antialias: settings.antialias,
-        });
-        this.ui.setStatus(
-          settings.rendererType === "WebGPURenderer" ? "Using WebGPU." : "Using WebGL."
-        );
-      } catch (err) {
-        console.error(err);
-        this.ui.setStatus("WebGPU is not available. Staying on WebGL.");
-        if (this.ui.projectRenderer) this.ui.projectRenderer.value = "WebGLRenderer";
-      }
+    if (settings.antialias !== this.sceneManager!.antialias) {
+      await this.sceneManager!.recreateRenderer({ antialias: settings.antialias });
     }
 
     this.sceneManager!.setShadows(settings.shadows as boolean);
