@@ -1,0 +1,900 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow: hidden;
+  height: 100%;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  background: #111;
+  color: #888;
+}
+
+#app,
+#route-home,
+#route-editor {
+  position: relative;
+  height: 100%;
+}
+
+#route-home[hidden],
+#route-editor[hidden] {
+  display: none !important;
+}
+
+body[data-mode="cut"] #viewport {
+  cursor: crosshair;
+}
+
+/* Home styles live in home/home.css */
+
+/* Editor shell — same partitions as three.js editor */
+
+#editor,
+#editor.active {
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: #111;
+}
+
+#menubar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: #111;
+  z-index: 3;
+}
+
+#menubar .menu {
+  float: left;
+  cursor: pointer;
+  padding-right: 8px;
+}
+
+#menubar .menu.right {
+  float: right;
+  cursor: auto;
+  padding-right: 0;
+  text-align: right;
+}
+
+#menubar .menu .title {
+  display: inline-block;
+  color: #888;
+  margin: 0;
+  padding: 10px;
+  line-height: 16px;
+}
+
+#menubar .menu.right .title {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+
+#menubar .menu.right .title[data-mode="cut"] {
+  color: #08f;
+}
+
+#menubar .menu .key {
+  position: absolute;
+  right: 10px;
+  color: #444;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-size: 9px;
+  line-height: normal;
+  padding: 2px 4px;
+  pointer-events: none;
+}
+
+#menubar .menu .options {
+  position: fixed;
+  z-index: 4;
+  display: none;
+  padding: 5px 0;
+  background: #111;
+  min-width: 190px;
+  max-height: calc(100vh - 80px);
+  overflow: visible;
+  box-shadow: 0 10px 10px -5px #00000066;
+}
+
+#menubar .menu:hover > .options {
+  display: block;
+}
+
+#menubar .submenu-title::after {
+  content: "";
+  float: right;
+  width: 0;
+  height: 0;
+  margin-top: 8px;
+  border-style: solid;
+  border-width: 4px 0 4px 5px;
+  border-color: transparent transparent transparent #888;
+}
+
+#menubar .menu .options .option.submenu-title:hover::after {
+  border-left-color: #fff;
+}
+
+#menubar .submenu-title > .options {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: -5px;
+  min-width: 160px;
+  max-height: calc(100vh - 80px);
+  overflow: auto;
+}
+
+#menubar .submenu-title:hover > .options {
+  display: block;
+}
+
+#menubar .menu .options hr {
+  border: 0;
+  border-top: 1px solid #222;
+  margin: 4px 0;
+}
+
+#menubar .menu .options .option {
+  position: relative;
+  color: #888;
+  background: transparent;
+  padding: 5px 10px;
+  padding-right: 48px;
+  line-height: 25px;
+  white-space: nowrap;
+}
+
+#menubar .menu .options .option:hover {
+  color: #fff;
+  background: #08f;
+}
+
+#menubar .menu .options .inactive {
+  color: #444;
+  background: transparent;
+  cursor: default;
+}
+
+#menubar .menu .options .inactive:hover {
+  color: #444;
+  background: transparent;
+}
+
+#menubar .menu .options .option.toggle::before {
+  content: " ";
+  display: inline-block;
+  width: 16px;
+}
+
+#menubar .menu .options .option.toggle-on::before {
+  content: "✔";
+  font-size: 12px;
+}
+
+#viewport {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  right: 350px;
+  bottom: 0;
+  background: #12151c;
+  overflow: hidden;
+}
+
+#viewport canvas,
+.webgl {
+  display: block;
+  outline: none;
+}
+
+#info {
+  position: absolute;
+  left: 10px;
+  bottom: 50px;
+  z-index: 2;
+  pointer-events: none;
+  font-size: 12px;
+  color: #fff;
+  text-transform: lowercase;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+  line-height: 1.45;
+}
+
+#info .info-num {
+  display: inline-block;
+  width: 60px;
+  text-align: right;
+  margin-right: 6px;
+}
+
+#viewport-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  left: auto;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+#viewport-controls .Select {
+  appearance: none;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 88px;
+  color: #aaa;
+  background-color: #222;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path fill='%23aaa' d='M0 0l5 6 5-6z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  border: 3px solid #222;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-size: 12px;
+  line-height: 16px;
+  padding: 3px 22px 3px 8px;
+  cursor: pointer;
+}
+
+#viewport-controls .Select:hover {
+  color: #ccc;
+  background-color: #444;
+  border-color: #444;
+}
+
+#view-helper {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  width: 128px;
+  height: 128px;
+  z-index: 3;
+  pointer-events: auto;
+}
+
+#hint {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+  font-size: 12px;
+  color: #c5d0e2;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+  background: rgba(17, 17, 17, 0.55);
+  border: 1px solid #222;
+  border-radius: 999px;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+#toolbar {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 16px;
+  height: 32px;
+  background: #111;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 6px;
+  border: 3px solid #111;
+  overflow: hidden;
+  z-index: 2;
+}
+
+#toolbar button {
+  appearance: none;
+  border: 0;
+  height: 32px;
+  padding: 0 14px;
+  background: #222;
+  color: #aaa;
+  font-size: 12px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+#toolbar button:hover {
+  color: #ccc;
+  background: #444;
+}
+
+#toolbar button.selected {
+  color: #fff;
+  background: #08f;
+}
+
+#btn-cut.selected {
+  background: #1d4f7a;
+}
+
+#resizer {
+  position: absolute;
+  z-index: 2;
+  top: 36px;
+  right: 350px;
+  width: 5px;
+  bottom: 0;
+  transform: translateX(2.5px);
+  cursor: col-resize;
+}
+
+#resizer:hover {
+  background: #08f8;
+  transition: background-color 0.2s 0.1s;
+}
+
+#resizer:active {
+  background: #08f;
+}
+
+#sidebar {
+  position: absolute;
+  right: 0;
+  top: 36px;
+  bottom: 0;
+  width: 350px;
+  background: #111;
+  overflow: auto;
+  overflow-x: hidden;
+}
+
+#tabs,
+#properties-tabs {
+  background: #1a1a1a;
+  border-bottom: 1px solid #222;
+  display: flex;
+}
+
+#tabs span,
+#properties-tabs span {
+  color: #666;
+  border-right: 1px solid #222;
+  padding: 10px 12px;
+  text-transform: uppercase;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#tabs span.selected,
+#properties-tabs span.selected {
+  color: #888;
+  background: #111;
+}
+
+#properties-tabs {
+  border-top: 1px solid #222;
+}
+
+#properties-tabs span[hidden] {
+  display: none;
+}
+
+.Panel {
+  color: #888;
+  padding: 10px;
+  border-top: 1px solid #222;
+}
+
+.panel-heading {
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.Row {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+
+.Row[hidden],
+.Panel[hidden] {
+  display: none !important;
+}
+
+.Row:last-child {
+  margin-bottom: 0;
+}
+
+.Row .Label {
+  width: 90px;
+  flex-shrink: 0;
+  color: #666;
+}
+
+.Select,
+.Text,
+.Number,
+#model-select {
+  flex: 1;
+  min-width: 0;
+  color: #aaa;
+  background: #222;
+  border: 3px solid #222;
+  border-radius: 4px;
+  text-transform: none;
+  cursor: pointer;
+  outline: none;
+  padding: 4px 6px;
+}
+
+.Text,
+.Number {
+  cursor: text;
+}
+
+.Number {
+  flex: 0 1 58px;
+  min-width: 46px;
+  padding: 3px 4px;
+  color: #08f;
+}
+
+#properties .Number:hover {
+  color: #2af;
+}
+
+.Check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+#prop-uuid {
+  flex: 1;
+}
+
+#prop-uuid-new {
+  flex: 0 0 auto;
+}
+
+.Color {
+  width: 36px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #333;
+  background: #222;
+  cursor: pointer;
+}
+
+.Texture {
+  width: 32px;
+  height: 22px;
+  flex: 0 0 32px;
+  padding: 0;
+  border: 1px solid #333;
+  background:
+    linear-gradient(45deg, #2a2a2a 25%, transparent 25%) 0 0 / 8px 8px,
+    linear-gradient(-45deg, #2a2a2a 25%, transparent 25%) 0 4px / 8px 8px,
+    linear-gradient(45deg, transparent 75%, #2a2a2a 75%) 4px -4px / 8px 8px,
+    linear-gradient(-45deg, transparent 75%, #2a2a2a 75%) -4px 0 / 8px 8px,
+    #1a1a1a;
+  background-size: 8px 8px, 8px 8px, 8px 8px, 8px 8px, cover;
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0, center;
+  cursor: pointer;
+}
+
+.Texture.has-map {
+  border-color: #08f;
+}
+
+.TextureSettings {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  color: #888;
+  background: #222;
+  border: 0;
+  cursor: pointer;
+}
+
+.TextureSettings:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.TextureSettings:not(:disabled):hover {
+  color: #ccc;
+  background: #444;
+}
+
+#prop-mat-type,
+#prop-mat-slot,
+#prop-mat-name,
+#prop-mat-uuid {
+  flex: 1;
+  min-width: 0;
+}
+
+#prop-mat-uuid-new {
+  flex: 0 0 auto;
+}
+
+#prop-material-panel .Row[data-mat-prop] input[type="checkbox"] {
+  flex: 0 0 auto;
+}
+
+#history-list {
+  min-height: 64px;
+  max-height: 180px;
+  overflow: auto;
+  background: #0c0c0c;
+  border: 1px solid #222;
+  margin-bottom: 10px;
+}
+
+#history-list .option {
+  padding: 4px 8px;
+  color: #8888ee;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+#history-list .option.redo {
+  opacity: 0.35;
+}
+
+#history-list .empty {
+  padding: 8px;
+  color: #555;
+  font-size: 12px;
+}
+
+.Select:hover,
+.Text:hover,
+.Number:hover,
+#model-select:hover {
+  color: #ccc;
+  background: #444;
+  border-color: #444;
+}
+
+.Button,
+#btn-upload {
+  appearance: none;
+  color: #aaa;
+  background: #222;
+  border: 0;
+  padding: 5px 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  cursor: pointer;
+  outline: none;
+}
+
+.Button:hover,
+#btn-upload:hover {
+  color: #ccc;
+  background: #444;
+}
+
+#model-upload {
+  display: none;
+}
+
+#status {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #888;
+}
+
+.scene-outliner {
+  border-top: 0;
+  padding-top: 20px;
+}
+
+#outliner {
+  min-height: 140px;
+  max-height: 220px;
+  overflow: auto;
+  background: #222;
+  outline: none;
+}
+
+#outliner .option {
+  padding: 4px;
+  color: #999;
+  white-space: nowrap;
+  cursor: pointer;
+  font-size: 12px;
+  border: 1px solid transparent;
+}
+
+#outliner .option:hover {
+  background: rgba(21, 60, 94, 0.5);
+}
+
+#outliner .option.active {
+  background: rgba(21, 60, 94, 1);
+}
+
+#outliner .opener {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin: 0 4px;
+  vertical-align: top;
+  text-align: center;
+  color: #888;
+}
+
+#outliner .opener.open::after {
+  content: "−";
+}
+
+#outliner .opener.closed::after {
+  content: "+";
+}
+
+#outliner .type {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  color: #ddd;
+  text-align: center;
+}
+
+#outliner .type::after {
+  content: "●";
+}
+
+#outliner .Camera {
+  color: #dd8888;
+}
+
+#outliner .Scene {
+  color: #8888dd;
+}
+
+#outliner .Light {
+  color: #dddd88;
+}
+
+#outliner .Mesh,
+#outliner .Object3D {
+  color: #8888ee;
+}
+
+#outliner .Line,
+#outliner .LineSegments {
+  color: #88ee88;
+}
+
+#outliner .Geometry {
+  color: #aaeeaa;
+}
+
+#outliner .Material {
+  color: #eeaaee;
+}
+
+#outliner .empty {
+  padding: 8px;
+  color: #555;
+  font-size: 12px;
+}
+
+#cut-line {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: #7ec8ff;
+  transform-origin: 0 50%;
+  z-index: 6;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(126, 200, 255, 0.8);
+}
+
+#drop-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: none;
+  place-items: center;
+  background: rgba(14, 17, 22, 0.72);
+  border: 2px dashed rgba(0, 136, 255, 0.45);
+  pointer-events: none;
+  text-align: center;
+}
+
+#drop-overlay.visible {
+  display: grid;
+}
+
+#drop-overlay p {
+  font-size: 1.2rem;
+  font-weight: 650;
+  color: #e8edf5;
+  margin-bottom: 0.35rem;
+}
+
+#drop-overlay span {
+  color: #8aa0c2;
+  font-size: 0.85rem;
+}
+
+#loading {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: none;
+  place-items: center;
+  gap: 12px;
+  flex-direction: column;
+  background: rgba(14, 17, 22, 0.35);
+  color: #c5d0e2;
+}
+
+#loading.visible {
+  display: flex;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #08f;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+#project-exposure {
+  flex: 0 0 48px;
+  min-width: 48px;
+}
+
+#project-exposure[hidden] {
+  display: none !important;
+}
+
+.project-actions {
+  justify-content: flex-end;
+}
+
+.project-actions .Button {
+  width: 170px;
+  text-align: center;
+}
+
+#resource-tabs {
+  display: flex;
+  background: #1a1a1a;
+  border: 1px solid #222;
+  border-bottom: 0;
+}
+
+#resource-tabs span {
+  color: #666;
+  border-right: 1px solid #222;
+  padding: 8px 10px;
+  text-transform: uppercase;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#resource-tabs span.selected {
+  color: #888;
+  background: #111;
+}
+
+#resource-list {
+  height: 140px;
+  overflow: auto;
+  resize: vertical;
+  background: #0c0c0c;
+  border: 1px solid #222;
+  margin-bottom: 10px;
+}
+
+#resource-list .option {
+  padding: 4px 8px;
+  color: #8888ee;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+#resource-list .option.selected {
+  background: #08f;
+  color: #fff;
+}
+
+#resource-list .empty {
+  padding: 8px;
+  color: #555;
+  font-size: 12px;
+}
+
+.resource-footer {
+  justify-content: space-between;
+}
+
+#resource-count {
+  color: #666;
+  font-size: 12px;
+}
+
+#player-stop {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 6;
+}
+
+#editor.playing #menubar,
+#editor.playing #sidebar,
+#editor.playing #resizer,
+#editor.playing #viewport-controls,
+#editor.playing #view-helper,
+#editor.playing #hint,
+#editor.playing #toolbar,
+#editor.playing #info {
+  display: none !important;
+}
+
+#editor.playing #viewport {
+  top: 0;
+  right: 0;
+}
+
+@media (max-width: 600px) {
+  #resizer {
+    display: none;
+  }
+
+  #viewport {
+    right: 0;
+    bottom: 320px;
+  }
+
+  #sidebar {
+    left: 0;
+    width: 100%;
+    top: auto;
+    height: 320px;
+  }
+
+  #toolbar {
+    bottom: 12px;
+  }
+
+  #hint {
+    display: none;
+  }
+
+  #menubar .menu.right {
+    display: none;
+  }
+}

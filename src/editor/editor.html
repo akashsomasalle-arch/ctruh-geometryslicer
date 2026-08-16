@@ -1,0 +1,811 @@
+<div id="editor" class="active">
+    <div id="menubar">
+        <div class="menu">
+            <div class="title">File</div>
+            <div class="options">
+                <div class="option submenu-title">New
+                    <div class="options">
+                        <div class="option" data-action="new-empty">Empty</div>
+                    </div>
+                </div>
+                <div class="option" data-action="open">Open</div>
+                <div class="option" data-action="save">Save</div>
+                <hr>
+                <div class="option" data-action="import">Import</div>
+                <div class="option submenu-title">Export
+                    <div class="options">
+                        <div class="option" data-action="export" data-format="glb">GLB</div>
+                        <div class="option" data-action="export" data-format="gltf">GLTF</div>
+                        <div class="option" data-action="export" data-format="obj">OBJ</div>
+                        <div class="option" data-action="export" data-format="usdz">USDZ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu">
+            <div class="title">Edit</div>
+            <div class="options">
+                <div class="option inactive" data-action="undo" id="menu-undo">Undo <span class="key">CTRL+Z</span></div>
+                <div class="option inactive" data-action="redo" id="menu-redo">Redo <span class="key">CTRL+SHIFT+Z</span></div>
+                <hr>
+                <div class="option" data-action="center">Center</div>
+                <div class="option" data-action="clone">Clone</div>
+                <div class="option" data-action="delete">Delete <span class="key">DEL</span></div>
+            </div>
+        </div>
+
+        <div class="menu">
+            <div class="title">Mode</div>
+            <div class="options">
+                <div class="option toggle toggle-on" data-action="navigate" id="menu-navigate">Navigate <span class="key">N</span></div>
+                <div class="option toggle" data-action="cut" id="menu-cut">Cut <span class="key">C</span></div>
+            </div>
+        </div>
+
+        <div class="menu">
+            <div class="title">Add</div>
+            <div class="options">
+                <div class="option" data-action="add" data-id="group">Group</div>
+                <div class="option submenu-title">Mesh
+                    <div class="options">
+                        <div class="option" data-action="add" data-id="box">Box</div>
+                        <div class="option" data-action="add" data-id="capsule">Capsule</div>
+                        <div class="option" data-action="add" data-id="circle">Circle</div>
+                        <div class="option" data-action="add" data-id="cylinder">Cylinder</div>
+                        <div class="option" data-action="add" data-id="dodecahedron">Dodecahedron</div>
+                        <div class="option" data-action="add" data-id="icosahedron">Icosahedron</div>
+                        <div class="option" data-action="add" data-id="lathe">Lathe</div>
+                        <div class="option" data-action="add" data-id="octahedron">Octahedron</div>
+                        <div class="option" data-action="add" data-id="plane">Plane</div>
+                        <div class="option" data-action="add" data-id="ring">Ring</div>
+                        <div class="option" data-action="add" data-id="sphere">Sphere</div>
+                        <div class="option" data-action="add" data-id="sprite">Sprite</div>
+                        <div class="option" data-action="add" data-id="tetrahedron">Tetrahedron</div>
+                        <div class="option" data-action="add" data-id="text">Text</div>
+                        <div class="option" data-action="add" data-id="torus">Torus</div>
+                        <div class="option" data-action="add" data-id="torusknot">TorusKnot</div>
+                        <div class="option" data-action="add" data-id="tube">Tube</div>
+                        <hr>
+                        <div class="option" data-action="add" data-id="tshirt">T-Shirt</div>
+                    </div>
+                </div>
+                <div class="option submenu-title">Light
+                    <div class="options">
+                        <div class="option" data-action="add" data-id="ambient">Ambient</div>
+                        <div class="option" data-action="add" data-id="directional">Directional</div>
+                        <div class="option" data-action="add" data-id="hemisphere">Hemisphere</div>
+                        <div class="option" data-action="add" data-id="point">Point</div>
+                        <div class="option" data-action="add" data-id="spot">Spot</div>
+                    </div>
+                </div>
+                <div class="option submenu-title">Camera
+                    <div class="options">
+                        <div class="option" data-action="add" data-id="orthographic">Orthographic</div>
+                        <div class="option" data-action="add" data-id="perspective">Perspective</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu">
+            <div class="title">View</div>
+            <div class="options">
+                <div class="option toggle toggle-on" data-action="toggle-grid" id="menu-grid">Grid Helper</div>
+                <div class="option toggle toggle-on" data-action="toggle-camera-helpers" id="menu-camera-helpers">Camera Helpers</div>
+                <div class="option toggle toggle-on" data-action="toggle-light-helpers" id="menu-light-helpers">Light Helpers</div>
+                <div class="option toggle toggle-on" data-action="toggle-skeleton-helpers" id="menu-skeleton-helpers">Skeleton Helpers</div>
+                <hr>
+                <div class="option" data-action="frame">Frame object</div>
+                <div class="option" data-action="fullscreen">Fullscreen</div>
+            </div>
+        </div>
+
+        <div class="menu">
+            <div class="title">Help</div>
+            <div class="options">
+                <div class="option" data-action="help-shortcuts">Shortcuts</div>
+                <div class="option" data-action="help-about">About</div>
+            </div>
+        </div>
+
+        <div class="menu right">
+            <div class="title" id="mode-label" data-mode="navigate">NAVIGATE</div>
+        </div>
+    </div>
+
+    <div id="viewport">
+        <canvas class="webgl"></canvas>
+        <div id="viewport-controls">
+            <select id="viewport-camera" class="Select">
+                <option value="camera">Camera</option>
+            </select>
+            <select id="viewport-shading" class="Select">
+                <option value="solid" selected>solid</option>
+                <option value="normals">normals</option>
+                <option value="wireframe">wireframe</option>
+            </select>
+        </div>
+        <div id="view-helper"></div>
+        <div id="cut-line"></div>
+        <div id="hint">Orbit to look around · C to cut · click a piece to transform</div>
+        <div id="info">
+            <div class="info-row"><span class="info-num" id="info-objects">0</span><span id="info-objects-label">objects</span></div>
+            <div class="info-row"><span class="info-num" id="info-vertices">0</span><span id="info-vertices-label">vertices</span></div>
+            <div class="info-row"><span class="info-num" id="info-triangles">0</span><span id="info-triangles-label">triangles</span></div>
+            <div class="info-row"><span class="info-num" id="info-frametime">0.00</span><span>render time</span></div>
+        </div>
+        <div id="toolbar">
+            <button id="btn-navigate" type="button" class="selected">Navigate</button>
+            <button id="btn-cut" type="button">Cut</button>
+        </div>
+        <div id="drop-overlay">
+            <p>Drop a model to load</p>
+                <span>.glb · .gltf · .obj · .fbx · .usdz · .json</span>
+        </div>
+        <div id="loading">
+            <div class="spinner"></div>
+            <span>Loading model…</span>
+        </div>
+        <button id="player-stop" class="Button" type="button" hidden>Stop</button>
+    </div>
+
+    <div id="resizer"></div>
+
+    <aside id="sidebar">
+        <div id="tabs">
+            <span class="selected" data-tab="scene">Scene</span>
+            <span data-tab="project">Project</span>
+            <span data-tab="settings">Settings</span>
+        </div>
+
+        <div class="tab-panel" data-panel="scene">
+            <div class="Panel scene-outliner">
+                <div id="outliner"></div>
+            </div>
+            <div class="Panel">
+                <div class="Row">
+                    <span class="Label">Model</span>
+                    <select id="model-select" class="Select"></select>
+                </div>
+                <div class="Row">
+                    <span class="Label">Import</span>
+                    <button id="btn-upload" class="Button" type="button">Upload</button>
+                    <input id="model-upload" type="file" accept=".glb,.gltf,.obj,.fbx,.usdz,.usd,.usda,.usdc,.mtl,.bin,.png,.jpg,.jpeg,.webp" multiple hidden>
+                    <input id="project-open" type="file" accept=".json,application/json" hidden>
+                </div>
+            </div>
+            <div class="Panel">
+                <div class="Row">
+                    <span class="Label">Background</span>
+                    <select id="scene-background-type" class="Select">
+                        <option value="default">Default</option>
+                        <option value="color" selected>Color</option>
+                        <option value="texture">Texture</option>
+                        <option value="equirect">Equirect</option>
+                    </select>
+                    <input id="scene-background" class="Color" type="color" value="#12151c">
+                    <button type="button" class="Texture" id="scene-background-map" hidden title="Equirect map"></button>
+                    <input id="scene-background-map-file" type="file" accept=".hdr,.exr,.png,.jpg,.jpeg,.webp" hidden>
+                </div>
+                <div class="Row" id="scene-background-colorspace-row" hidden>
+                    <span class="Label"></span>
+                    <select id="scene-background-colorspace" class="Select">
+                        <option value="" selected>No Color Space</option>
+                        <option value="srgb-linear">srgb-linear</option>
+                        <option value="srgb">srgb</option>
+                    </select>
+                </div>
+                <div class="Row" id="scene-background-equirect-row" hidden>
+                    <span class="Label"></span>
+                    <input id="scene-background-blur" class="Number" type="number" min="0" max="1" step="0.01" value="0" title="Blurriness">
+                    <input id="scene-background-intensity" class="Number" type="number" min="0" step="0.05" value="1" title="Intensity">
+                    <input id="scene-background-rotation" class="Number" type="number" min="-180" max="180" step="1" value="0" title="Rotation °">
+                </div>
+                <div class="Row">
+                    <span class="Label">Environment</span>
+                    <select id="scene-environment-type" class="Select">
+                        <option value="default" selected>Default</option>
+                        <option value="equirect">Equirect</option>
+                        <option value="none">None</option>
+                    </select>
+                    <button type="button" class="Texture" id="scene-environment-map" hidden title="Equirect map"></button>
+                    <input id="scene-environment-map-file" type="file" accept=".hdr,.exr,.png,.jpg,.jpeg,.webp" hidden>
+                </div>
+                <div class="Row">
+                    <span class="Label">Fog</span>
+                    <select id="scene-fog-type" class="Select">
+                        <option value="none" selected>None</option>
+                        <option value="linear">Linear</option>
+                        <option value="exponential">Exponential</option>
+                    </select>
+                </div>
+                <div class="Row" id="scene-fog-fields" hidden>
+                    <span class="Label"></span>
+                    <input id="scene-fog-color" class="Color" type="color" value="#aaaaaa">
+                    <input id="scene-fog-near" class="Number" type="number" min="0" step="0.1" value="0.1">
+                    <input id="scene-fog-far" class="Number" type="number" min="0" step="0.1" value="50">
+                    <input id="scene-fog-density" class="Number" type="number" min="0" max="0.1" step="0.001" value="0.05" hidden>
+                </div>
+            </div>
+            <div id="properties" hidden>
+                <div id="properties-tabs">
+                    <span class="selected" data-prop="object">Object</span>
+                    <span data-prop="geometry" id="tab-geometry">Geometry</span>
+                    <span data-prop="material" id="tab-material">Material</span>
+                </div>
+                <div class="prop-panel" data-prop="object">
+                    <div class="Panel">
+                        <div class="Row">
+                            <span class="Label">Type</span>
+                            <span id="prop-type">—</span>
+                        </div>
+                        <div class="Row">
+                            <span class="Label">UUID</span>
+                            <input id="prop-uuid" class="Text" type="text" disabled>
+                            <button id="prop-uuid-new" class="Button" type="button">New</button>
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Name</span>
+                            <input id="prop-name" class="Text" type="text">
+                        </div>
+                        <div class="Row" id="prop-position-row">
+                            <span class="Label">Position</span>
+                            <input id="prop-pos-x" class="Number" type="number" step="0.1" data-vec="position" data-axis="x">
+                            <input id="prop-pos-y" class="Number" type="number" step="0.1" data-vec="position" data-axis="y">
+                            <input id="prop-pos-z" class="Number" type="number" step="0.1" data-vec="position" data-axis="z">
+                        </div>
+                        <div class="Row" id="prop-rotation-row">
+                            <span class="Label">Rotation</span>
+                            <input id="prop-rot-x" class="Number" type="number" step="1" data-vec="rotation" data-axis="x">
+                            <input id="prop-rot-y" class="Number" type="number" step="1" data-vec="rotation" data-axis="y">
+                            <input id="prop-rot-z" class="Number" type="number" step="1" data-vec="rotation" data-axis="z">
+                        </div>
+                        <div class="Row" id="prop-scale-row">
+                            <span class="Label">Scale</span>
+                            <input id="prop-scl-x" class="Number" type="number" step="0.1" data-vec="scale" data-axis="x">
+                            <input id="prop-scl-y" class="Number" type="number" step="0.1" data-vec="scale" data-axis="y">
+                            <input id="prop-scl-z" class="Number" type="number" step="0.1" data-vec="scale" data-axis="z">
+                        </div>
+                        <div class="Row" id="prop-intensity-row" hidden>
+                            <span class="Label">Intensity</span>
+                            <input id="prop-light-intensity" class="Number" type="number" min="0" step="0.01" value="1">
+                        </div>
+                        <div class="Row" id="prop-color-row" hidden>
+                            <span class="Label">Color</span>
+                            <input id="prop-light-color" class="Color" type="color" value="#ffffff">
+                        </div>
+                        <div class="Row" id="prop-shadow-row" hidden>
+                            <span class="Label">Shadow</span>
+                            <label class="Check"><input id="prop-cast-shadow" type="checkbox"> cast</label>
+                            <label class="Check" id="prop-receive-shadow-label"><input id="prop-receive-shadow" type="checkbox"> receive</label>
+                        </div>
+                        <div class="Row" id="prop-shadow-intensity-row" hidden>
+                            <span class="Label">Shadow Intensity</span>
+                            <input id="prop-shadow-intensity" class="Number" type="number" min="0" max="1" step="0.01" value="1">
+                        </div>
+                        <div class="Row" id="prop-shadow-bias-row" hidden>
+                            <span class="Label">Shadow Bias</span>
+                            <input id="prop-shadow-bias" class="Number" type="number" step="0.0001" value="0">
+                        </div>
+                        <div class="Row" id="prop-shadow-normal-bias-row" hidden>
+                            <span class="Label">Shadow Normal Bias</span>
+                            <input id="prop-shadow-normal-bias" class="Number" type="number" step="0.01" value="0">
+                        </div>
+                        <div class="Row" id="prop-shadow-radius-row" hidden>
+                            <span class="Label">Shadow Radius</span>
+                            <input id="prop-shadow-radius" class="Number" type="number" min="0" step="0.01" value="1">
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Visible</span>
+                            <input id="prop-visible" type="checkbox" checked>
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Frustum Cull</span>
+                            <input id="prop-frustum-culled" type="checkbox" checked>
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Render Order</span>
+                            <input id="prop-render-order" class="Number" type="number" step="1" value="0">
+                        </div>
+                    </div>
+                    <div class="Panel" id="prop-camera" hidden>
+                        <div class="Row">
+                            <span class="Label">Fov</span>
+                            <input id="prop-camera-fov" class="Number" type="number" min="1" max="179" step="1">
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Near</span>
+                            <input id="prop-camera-near" class="Number" type="number" min="0.001" step="0.01">
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Far</span>
+                            <input id="prop-camera-far" class="Number" type="number" min="1" step="1">
+                        </div>
+                    </div>
+                </div>
+                <div class="prop-panel" data-prop="geometry" hidden>
+                    <div class="Panel">
+                        <div class="Row">
+                            <span class="Label">Type</span>
+                            <span id="prop-geo-type">—</span>
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Vertices</span>
+                            <span id="prop-geo-vertices">0</span>
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Triangles</span>
+                            <span id="prop-geo-triangles">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="prop-panel" data-prop="material" hidden>
+                    <div class="Panel" id="prop-material-panel">
+                        <div class="Row" id="prop-mat-slot-row" hidden>
+                            <span class="Label">Slot</span>
+                            <select id="prop-mat-slot" class="Select"></select>
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Type</span>
+                            <select id="prop-mat-type" class="Select"></select>
+                        </div>
+                        <div class="Row">
+                            <span class="Label">UUID</span>
+                            <input id="prop-mat-uuid" class="Text" type="text" disabled>
+                            <button id="prop-mat-uuid-new" class="Button" type="button">New</button>
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Name</span>
+                            <input id="prop-mat-name" class="Text" type="text">
+                        </div>
+                        <div class="Row" data-mat-prop="color">
+                            <span class="Label">Color</span>
+                            <input class="Color" type="color" data-mat-color="color" value="#ffffff">
+                        </div>
+                        <div class="Row" data-mat-prop="specular">
+                            <span class="Label">Specular</span>
+                            <input class="Color" type="color" data-mat-color="specular" value="#111111">
+                        </div>
+                        <div class="Row" data-mat-prop="shininess">
+                            <span class="Label">Shininess</span>
+                            <input class="Number" type="number" data-mat-value="shininess" min="0" step="1">
+                        </div>
+                        <div class="Row" data-mat-prop="emissive">
+                            <span class="Label">Emissive</span>
+                            <input class="Color" type="color" data-mat-color="emissive" value="#000000">
+                            <input class="Number" type="number" data-mat-value="emissiveIntensity" min="0" step="0.01" value="1">
+                        </div>
+                        <div class="Row" data-mat-prop="reflectivity">
+                            <span class="Label">Reflectivity</span>
+                            <input class="Number" type="number" data-mat-value="reflectivity" min="0" max="1" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="ior">
+                            <span class="Label">IOR</span>
+                            <input class="Number" type="number" data-mat-value="ior" min="1" max="2.333" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="roughness">
+                            <span class="Label">Roughness</span>
+                            <input class="Number" type="number" data-mat-value="roughness" min="0" max="1" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="metalness">
+                            <span class="Label">Metalness</span>
+                            <input class="Number" type="number" data-mat-value="metalness" min="0" max="1" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="clearcoat">
+                            <span class="Label">Clearcoat</span>
+                            <input class="Number" type="number" data-mat-value="clearcoat" min="0" max="1" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="clearcoatRoughness">
+                            <span class="Label">Clearcoat Roughness</span>
+                            <input class="Number" type="number" data-mat-value="clearcoatRoughness" min="0" max="1" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="sheen">
+                            <span class="Label">Sheen</span>
+                            <input class="Number" type="number" data-mat-value="sheen" min="0" max="1" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="sheenRoughness">
+                            <span class="Label">Sheen Roughness</span>
+                            <input class="Number" type="number" data-mat-value="sheenRoughness" min="0" max="1" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="sheenColor">
+                            <span class="Label">Sheen Color</span>
+                            <input class="Color" type="color" data-mat-color="sheenColor" value="#000000">
+                        </div>
+                        <div class="Row" data-mat-prop="iridescence">
+                            <span class="Label">Iridescence</span>
+                            <input class="Number" type="number" data-mat-value="iridescence" min="0" max="1" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="iridescenceIOR">
+                            <span class="Label">Iridescence IOR</span>
+                            <input class="Number" type="number" data-mat-value="iridescenceIOR" min="1" max="5" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="transmission">
+                            <span class="Label">Transmission</span>
+                            <input class="Number" type="number" data-mat-value="transmission" min="0" max="1" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="thickness">
+                            <span class="Label">Thickness</span>
+                            <input class="Number" type="number" data-mat-value="thickness" min="0" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="attenuationDistance">
+                            <span class="Label">Attenuation Distance</span>
+                            <input class="Number" type="number" data-mat-value="attenuationDistance" min="0" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="attenuationColor">
+                            <span class="Label">Attenuation Color</span>
+                            <input class="Color" type="color" data-mat-color="attenuationColor" value="#ffffff">
+                        </div>
+                        <div class="Row" data-mat-prop="specularIntensity">
+                            <span class="Label">Specular Intensity</span>
+                            <input class="Number" type="number" data-mat-value="specularIntensity" min="0" max="1" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="specularColor">
+                            <span class="Label">Specular Color</span>
+                            <input class="Color" type="color" data-mat-color="specularColor" value="#ffffff">
+                        </div>
+                        <div class="Row" data-mat-prop="dispersion">
+                            <span class="Label">Dispersion</span>
+                            <input class="Number" type="number" data-mat-value="dispersion" min="0" max="10" step="0.01">
+                        </div>
+                        <div class="Row" data-mat-prop="vertexColors">
+                            <span class="Label">Vertex Colors</span>
+                            <input type="checkbox" data-mat-bool="vertexColors">
+                        </div>
+                        <div class="Row" data-mat-prop="map">
+                            <span class="Label">Map</span>
+                            <input type="checkbox" data-mat-map-enabled="map">
+                            <button type="button" class="Texture" data-mat-map="map" title="Color map"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="map" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="specularMap">
+                            <span class="Label">Specular Map</span>
+                            <input type="checkbox" data-mat-map-enabled="specularMap">
+                            <button type="button" class="Texture" data-mat-map="specularMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="specularMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="emissiveMap">
+                            <span class="Label">Emissive Map</span>
+                            <input type="checkbox" data-mat-map-enabled="emissiveMap">
+                            <button type="button" class="Texture" data-mat-map="emissiveMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="emissiveMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="matcap">
+                            <span class="Label">Matcap</span>
+                            <input type="checkbox" data-mat-map-enabled="matcap">
+                            <button type="button" class="Texture" data-mat-map="matcap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="matcap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="alphaMap">
+                            <span class="Label">Alpha Map</span>
+                            <input type="checkbox" data-mat-map-enabled="alphaMap">
+                            <button type="button" class="Texture" data-mat-map="alphaMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="alphaMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="bumpMap">
+                            <span class="Label">Bump Map</span>
+                            <input type="checkbox" data-mat-map-enabled="bumpMap">
+                            <button type="button" class="Texture" data-mat-map="bumpMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="bumpMap" disabled>⚙</button>
+                            <input class="Number" type="number" data-mat-value="bumpScale" step="0.01" value="1">
+                        </div>
+                        <div class="Row" data-mat-prop="normalMap">
+                            <span class="Label">Normal Map</span>
+                            <input type="checkbox" data-mat-map-enabled="normalMap">
+                            <button type="button" class="Texture" data-mat-map="normalMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="normalMap" disabled>⚙</button>
+                            <input class="Number" type="number" data-mat-vector="normalScale" data-axis="x" step="0.01" value="1">
+                            <input class="Number" type="number" data-mat-vector="normalScale" data-axis="y" step="0.01" value="1">
+                        </div>
+                        <div class="Row" data-mat-prop="displacementMap">
+                            <span class="Label">Displace Map</span>
+                            <input type="checkbox" data-mat-map-enabled="displacementMap">
+                            <button type="button" class="Texture" data-mat-map="displacementMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="displacementMap" disabled>⚙</button>
+                            <input class="Number" type="number" data-mat-value="displacementScale" step="0.01" value="1">
+                        </div>
+                        <div class="Row" data-mat-prop="roughnessMap">
+                            <span class="Label">Rough. Map</span>
+                            <input type="checkbox" data-mat-map-enabled="roughnessMap">
+                            <button type="button" class="Texture" data-mat-map="roughnessMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="roughnessMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="metalnessMap">
+                            <span class="Label">Metal. Map</span>
+                            <input type="checkbox" data-mat-map-enabled="metalnessMap">
+                            <button type="button" class="Texture" data-mat-map="metalnessMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="metalnessMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="clearcoatMap">
+                            <span class="Label">Clearcoat Map</span>
+                            <input type="checkbox" data-mat-map-enabled="clearcoatMap">
+                            <button type="button" class="Texture" data-mat-map="clearcoatMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="clearcoatMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="clearcoatNormalMap">
+                            <span class="Label">Clearcoat Normal Map</span>
+                            <input type="checkbox" data-mat-map-enabled="clearcoatNormalMap">
+                            <button type="button" class="Texture" data-mat-map="clearcoatNormalMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="clearcoatNormalMap" disabled>⚙</button>
+                            <input class="Number" type="number" data-mat-vector="clearcoatNormalScale" data-axis="x" step="0.01" value="1">
+                            <input class="Number" type="number" data-mat-vector="clearcoatNormalScale" data-axis="y" step="0.01" value="1">
+                        </div>
+                        <div class="Row" data-mat-prop="clearcoatRoughnessMap">
+                            <span class="Label">Clearcoat Rough. Map</span>
+                            <input type="checkbox" data-mat-map-enabled="clearcoatRoughnessMap">
+                            <button type="button" class="Texture" data-mat-map="clearcoatRoughnessMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="clearcoatRoughnessMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="sheenColorMap">
+                            <span class="Label">Sheen Color Map</span>
+                            <input type="checkbox" data-mat-map-enabled="sheenColorMap">
+                            <button type="button" class="Texture" data-mat-map="sheenColorMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="sheenColorMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="sheenRoughnessMap">
+                            <span class="Label">Sheen Rough. Map</span>
+                            <input type="checkbox" data-mat-map-enabled="sheenRoughnessMap">
+                            <button type="button" class="Texture" data-mat-map="sheenRoughnessMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="sheenRoughnessMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="iridescenceMap">
+                            <span class="Label">Iridescence Map</span>
+                            <input type="checkbox" data-mat-map-enabled="iridescenceMap">
+                            <button type="button" class="Texture" data-mat-map="iridescenceMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="iridescenceMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="iridescenceThicknessMap">
+                            <span class="Label">Iridescence Thickness Map</span>
+                            <input type="checkbox" data-mat-map-enabled="iridescenceThicknessMap">
+                            <button type="button" class="Texture" data-mat-map="iridescenceThicknessMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="iridescenceThicknessMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="envMap">
+                            <span class="Label">Env Map</span>
+                            <input type="checkbox" data-mat-map-enabled="envMap">
+                            <button type="button" class="Texture" data-mat-map="envMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="envMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="lightMap">
+                            <span class="Label">Light Map</span>
+                            <input type="checkbox" data-mat-map-enabled="lightMap">
+                            <button type="button" class="Texture" data-mat-map="lightMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="lightMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="aoMap">
+                            <span class="Label">AO Map</span>
+                            <input type="checkbox" data-mat-map-enabled="aoMap">
+                            <button type="button" class="Texture" data-mat-map="aoMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="aoMap" disabled>⚙</button>
+                            <input class="Number" type="number" data-mat-value="aoMapIntensity" min="0" max="1" step="0.01" value="1">
+                        </div>
+                        <div class="Row" data-mat-prop="gradientMap">
+                            <span class="Label">Gradient Map</span>
+                            <input type="checkbox" data-mat-map-enabled="gradientMap">
+                            <button type="button" class="Texture" data-mat-map="gradientMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="gradientMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="transmissionMap">
+                            <span class="Label">Transmission Map</span>
+                            <input type="checkbox" data-mat-map-enabled="transmissionMap">
+                            <button type="button" class="Texture" data-mat-map="transmissionMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="transmissionMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="thicknessMap">
+                            <span class="Label">Thickness Map</span>
+                            <input type="checkbox" data-mat-map-enabled="thicknessMap">
+                            <button type="button" class="Texture" data-mat-map="thicknessMap"></button>
+                            <button type="button" class="TextureSettings" data-mat-map-settings="thicknessMap" disabled>⚙</button>
+                        </div>
+                        <div class="Row" data-mat-prop="side">
+                            <span class="Label">Side</span>
+                            <select class="Select" data-mat-value="side">
+                                <option value="0">Front</option>
+                                <option value="1">Back</option>
+                                <option value="2">Double</option>
+                            </select>
+                        </div>
+                        <div class="Row" data-mat-prop="flatShading">
+                            <span class="Label">Flat Shading</span>
+                            <input type="checkbox" data-mat-bool="flatShading">
+                        </div>
+                        <div class="Row" data-mat-prop="blending">
+                            <span class="Label">Blending</span>
+                            <select class="Select" data-mat-value="blending">
+                                <option value="0">No</option>
+                                <option value="1">Normal</option>
+                                <option value="2">Additive</option>
+                                <option value="3">Subtractive</option>
+                                <option value="4">Multiply</option>
+                                <option value="5">Custom</option>
+                            </select>
+                        </div>
+                        <div class="Row" data-mat-prop="opacity">
+                            <span class="Label">Opacity</span>
+                            <input class="Number" type="number" data-mat-value="opacity" min="0" max="1" step="0.01" value="1">
+                        </div>
+                        <div class="Row" data-mat-prop="transparent">
+                            <span class="Label">Transparent</span>
+                            <input type="checkbox" data-mat-bool="transparent">
+                        </div>
+                        <div class="Row" data-mat-prop="forceSinglePass">
+                            <span class="Label">Force Single Pass</span>
+                            <input type="checkbox" data-mat-bool="forceSinglePass">
+                        </div>
+                        <div class="Row" data-mat-prop="alphaTest">
+                            <span class="Label">Alpha Test</span>
+                            <input class="Number" type="number" data-mat-value="alphaTest" min="0" max="1" step="0.01" value="0">
+                        </div>
+                        <div class="Row" data-mat-prop="depthTest">
+                            <span class="Label">Depth Test</span>
+                            <input type="checkbox" data-mat-bool="depthTest">
+                        </div>
+                        <div class="Row" data-mat-prop="depthWrite">
+                            <span class="Label">Depth Write</span>
+                            <input type="checkbox" data-mat-bool="depthWrite">
+                        </div>
+                        <div class="Row" data-mat-prop="wireframe">
+                            <span class="Label">Wireframe</span>
+                            <input type="checkbox" data-mat-bool="wireframe">
+                        </div>
+                    </div>
+                    <div class="Panel" id="mat-tex-settings" hidden>
+                        <div class="panel-heading" id="mat-tex-settings-title">Texture</div>
+                        <div class="Row">
+                            <span class="Label">Repeat</span>
+                            <input id="mat-tex-repeat-x" class="Number" type="number" step="0.1" value="1">
+                            <input id="mat-tex-repeat-y" class="Number" type="number" step="0.1" value="1">
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Offset</span>
+                            <input id="mat-tex-offset-x" class="Number" type="number" step="0.1" value="0">
+                            <input id="mat-tex-offset-y" class="Number" type="number" step="0.1" value="0">
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Wrap</span>
+                            <select id="mat-tex-wrap" class="Select">
+                                <option value="1000">Repeat</option>
+                                <option value="1001">Clamp</option>
+                                <option value="1002">Mirrored</option>
+                            </select>
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Flip Y</span>
+                            <input id="mat-tex-flip" type="checkbox">
+                        </div>
+                        <div class="Row">
+                            <span class="Label">Color Space</span>
+                            <select id="mat-tex-colorspace" class="Select">
+                                <option value="">No</option>
+                                <option value="srgb">sRGB</option>
+                                <option value="srgb-linear">Linear</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input id="prop-mat-map-file" type="file" accept="image/*" hidden>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-panel" data-panel="project" hidden>
+            <div class="Panel">
+                <div class="Row">
+                    <span class="Label">Camera</span>
+                    <select id="project-camera" class="Select">
+                        <option value="perspective" selected>Perspective</option>
+                        <option value="orthographic">Orthographic</option>
+                    </select>
+                </div>
+                <div class="Row">
+                    <span class="Label">Renderer</span>
+                    <select id="project-renderer" class="Select">
+                        <option value="WebGLRenderer" selected>WebGL</option>
+                        <option value="WebGPURenderer">WebGPU</option>
+                    </select>
+                </div>
+                <div class="Row">
+                    <span class="Label">Antialias</span>
+                    <input id="project-antialias" type="checkbox" checked>
+                </div>
+                <div class="Row">
+                    <span class="Label">Shadows</span>
+                    <input id="project-shadows" type="checkbox" checked>
+                    <select id="project-shadow-type" class="Select">
+                        <option value="0">Basic</option>
+                        <option value="1" selected>PCF</option>
+                        <option value="3">VSM</option>
+                    </select>
+                </div>
+                <div class="Row">
+                    <span class="Label">Tonemapping</span>
+                    <select id="project-tone-mapping" class="Select">
+                        <option value="0">No</option>
+                        <option value="1">Linear</option>
+                        <option value="2">Reinhard</option>
+                        <option value="3">Cineon</option>
+                        <option value="4" selected>ACESFilmic</option>
+                        <option value="6">AgX</option>
+                        <option value="7">Neutral</option>
+                    </select>
+                    <input id="project-exposure" class="Number" type="number" min="0" max="10" step="0.05" value="1.15">
+                </div>
+            </div>
+            <div class="Panel">
+                <div class="panel-heading">App</div>
+                <div class="Row">
+                    <span class="Label">Title</span>
+                    <input id="project-title" class="Text" type="text" placeholder="">
+                </div>
+                <div class="Row">
+                    <span class="Label">Editable</span>
+                    <input id="project-editable" type="checkbox">
+                </div>
+                <div class="Row project-actions">
+                    <button id="project-play" class="Button" type="button">Play</button>
+                </div>
+                <div class="Row project-actions">
+                    <button id="project-publish" class="Button" type="button">Publish</button>
+                </div>
+            </div>
+            <div class="Panel" id="project-resources">
+                <div id="resource-tabs">
+                    <span class="selected" data-resource="geometries">Geometries</span>
+                    <span data-resource="materials">Materials</span>
+                    <span data-resource="textures">Textures</span>
+                </div>
+                <div id="resource-list"></div>
+                <div class="Row resource-footer">
+                    <button id="resource-assign" class="Button" type="button">Assign</button>
+                    <span id="resource-count">0 geometries</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-panel" data-panel="settings" hidden>
+            <div class="Panel">
+                <div class="panel-heading">Viewport</div>
+                <div class="Row">
+                    <span class="Label">Grid</span>
+                    <input id="setting-grid" type="checkbox" checked>
+                </div>
+                <div class="Row">
+                    <span class="Label">Cameras</span>
+                    <input id="setting-camera-helpers" type="checkbox" checked>
+                </div>
+                <div class="Row">
+                    <span class="Label">Lights</span>
+                    <input id="setting-light-helpers" type="checkbox" checked>
+                </div>
+                <div class="Row">
+                    <span class="Label">Skeletons</span>
+                    <input id="setting-skeleton-helpers" type="checkbox" checked>
+                </div>
+                <div class="Row">
+                    <span class="Label">Mode</span>
+                    <span id="setting-mode">Navigate</span>
+                </div>
+            </div>
+            <div class="Panel">
+                <div class="panel-heading">Shortcuts</div>
+                <div class="Row"><span class="Label">N</span><span>Navigate</span></div>
+                <div class="Row"><span class="Label">C</span><span>Cut</span></div>
+                <div class="Row"><span class="Label">W</span><span>Translate</span></div>
+                <div class="Row"><span class="Label">R</span><span>Rotate</span></div>
+                <div class="Row"><span class="Label">S</span><span>Scale</span></div>
+                <div class="Row"><span class="Label">Esc</span><span>Cancel</span></div>
+                <div class="Row"><span class="Label">Del</span><span>Delete</span></div>
+                <div class="Row"><span class="Label">Ctrl+Z</span><span>Undo</span></div>
+            </div>
+            <div class="Panel">
+                <div class="panel-heading">History</div>
+                <div id="history-list"></div>
+                <div class="Row">
+                    <button id="btn-clear-history" class="Button" type="button">Clear History</button>
+                </div>
+            </div>
+            <div class="Panel">
+                <div id="status">Ready.</div>
+            </div>
+        </div>
+    </aside>
+</div>

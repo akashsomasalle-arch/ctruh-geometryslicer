@@ -1,0 +1,22 @@
+{
+  "name": "geometry-slicer",
+  "version": "1.0.0",
+  "description": "Real-time 3D mesh cutting tool (Three.js)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@types/three": "^0.183.0",
+    "typescript": "^5.9.2",
+    "vite": "^8.0.7"
+  }
+}

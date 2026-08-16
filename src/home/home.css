@@ -1,0 +1,216 @@
+@import url("https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&f[]=clash-display@500,600,700&display=swap");
+
+#home {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(88px, env(safe-area-inset-top)) 24px max(32px, env(safe-area-inset-bottom));
+  color: #fff;
+  font-family: Satoshi, Inter, Helvetica, sans-serif;
+  background-color: #070b1e;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-size: 14px 14px;
+  transition: opacity 0.55s ease, visibility 0.55s ease, filter 0.55s ease, transform 0.55s ease;
+}
+
+#home::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  background: linear-gradient(120deg, #070b1e, #0a1230, #16306e, #0e1840);
+  pointer-events: none;
+}
+
+#home.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  filter: blur(10px);
+  transform: scale(1.03);
+}
+
+#home a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#home .brand {
+  position: absolute;
+  top: max(40px, env(safe-area-inset-top));
+  left: max(30px, env(safe-area-inset-left));
+  z-index: 2;
+}
+
+#home .brand img {
+  display: block;
+  height: clamp(22px, 4vw, 28px);
+  width: auto;
+  filter: brightness(0) invert(1);
+}
+
+#home .credit {
+  position: absolute;
+  bottom: max(40px, env(safe-area-inset-bottom));
+  left: max(30px, env(safe-area-inset-left));
+  z-index: 2;
+  margin: 0;
+  max-width: calc(100% - 60px);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+#home .credit::after {
+  content: "";
+  display: block;
+  width: 0;
+  height: 1px;
+  margin-top: 6px;
+  background: rgba(125, 211, 252, 0.7);
+  transition: width 0.35s ease;
+}
+
+@media (hover: hover) {
+  #home .credit:hover {
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  #home .credit:hover::after {
+    width: 100%;
+  }
+}
+
+#home .hero-glow {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: min(800px, 140vw);
+  height: min(600px, 90vh);
+  transform: translate3d(-50%, -50%, 0);
+  border-radius: 50%;
+  background: rgba(37, 99, 255, 0.45);
+  filter: blur(90px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+#home .hero-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+#home .particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(125, 211, 252, 0.7);
+  box-shadow: 0 0 12px rgba(37, 173, 249, 0.35);
+}
+
+#home .hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(860px, 100%);
+  text-align: center;
+  will-change: transform;
+}
+
+#home h1 {
+  margin: 0;
+  font-family: "Clash Display", Satoshi, sans-serif;
+  font-size: clamp(32px, 8vw, 64px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+#home h1 .word {
+  display: inline-block;
+}
+
+#home .hero-content p {
+  margin: 20px 0 0;
+  max-width: 36em;
+  min-height: 3.2em;
+  font-size: clamp(14px, 3.6vw, 16px);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+#home .hero-content p.is-typing::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 0.9em;
+  margin-left: 3px;
+  background: #7dd3fc;
+  vertical-align: -0.1em;
+  animation: caret 0.7s step-end infinite;
+}
+
+#home #btn-start {
+  appearance: none;
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 130px;
+  min-height: 48px;
+  margin-top: 32px;
+  padding: 14px 32px;
+  border: 0;
+  border-radius: 10px;
+  background: #fff;
+  color: #111;
+  font: 700 16px/1 Satoshi, Inter, Helvetica, sans-serif;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  #home #btn-start:hover {
+    background: #f3f4f6;
+    box-shadow: 0 10px 28px rgba(37, 173, 249, 0.22);
+  }
+}
+
+@keyframes caret {
+  50% { opacity: 0; }
+}
+
+@media (max-width: 480px) {
+  #home {
+    padding-inline: 20px;
+  }
+
+  #home .brand,
+  #home .credit {
+    left: max(16px, env(safe-area-inset-left));
+  }
+
+  #home .brand {
+    top: max(20px, env(safe-area-inset-top));
+  }
+
+  #home .credit {
+    bottom: max(20px, env(safe-area-inset-bottom));
+    letter-spacing: 0.06em;
+  }
+
+  #home #btn-start {
+    width: 100%;
+    max-width: 280px;
+  }
+}
